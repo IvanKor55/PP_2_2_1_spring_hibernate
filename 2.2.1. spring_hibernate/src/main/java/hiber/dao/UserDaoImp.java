@@ -47,9 +47,8 @@ public class UserDaoImp implements UserDao {
       Car car = (Car) sessionFactory.getCurrentSession().createQuery(sql)
               .setParameter("model", model).setParameter("series", series)
               .setMaxResults(1).getSingleResult();
-      System.out.println(car);
-      sql = "FROM User WHERE car =: car";
+      sql = "FROM User WHERE Car =: car";
       return (User) sessionFactory.getCurrentSession().createQuery(sql)
-              .setParameter("car", car).getSingleResult();
+              .setParameter("Car", car).getSingleResult();
    }
 }
