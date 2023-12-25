@@ -3,6 +3,7 @@ package hiber;
 import hiber.config.AppConfig;
 import hiber.model.Car;
 import hiber.model.User;
+import hiber.service.CarService;
 import hiber.service.UserService;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -11,41 +12,59 @@ import java.util.List;
 
 public class MainApp {
    public static void main(String[] args) throws SQLException {
-      AnnotationConfigApplicationContext context = 
-            new AnnotationConfigApplicationContext(AppConfig.class);
+      AnnotationConfigApplicationContext context =
+              new AnnotationConfigApplicationContext(AppConfig.class);
 
       UserService userService = context.getBean(UserService.class);
-
-      userService.add(new User("User1", "Lastname1", "user1@mail.ru"));
-      Car car = new Car("Model1", 1);
-      userService.add(car);
-      userService.setCarForLastUser(car);
-      userService.add(new User("User2", "Lastname2", "user2@mail.ru"));
-      car = new Car("Model1", 2);
-      userService.add(car);
-      userService.setCarForLastUser(car);
-      userService.add(new User("User3", "Lastname3", "user3@mail.ru"));
-      car = new Car("Model2", 1);
-      userService.add(car);
-      userService.setCarForLastUser(car);
+//      CarService carService = context.getBean(CarService.class);
+//
+//      userService.add(new User("User1", "Lastname1", "user1@mail.ru"));
+//      Car car = new Car("Model1", 1);
+//      carService.addCar(car);
+//      carService.setCarForLastUser(car);
+      userService.add(new User("User2", "Lastname2", "user2@mail.ru",new Car("Model1", 2)));
+//      car = new Car("Model1", 2);
+//      carService.addCar(car);
+//      carService.setCarForLastUser(car);
+      userService.add(new User("User3", "Lastname3", "user3@mail.ru",new Car("Model2", 1)));
+//      car = new Car("Model2", 1);
+//      carService.addCar(car);
+//      carService.setCarForLastUser(car);
       userService.add(new User("User4", "Lastname4", "user4@mail.ru"));
-      car = new Car("Model2", 2);
-      userService.add(car);
-      userService.setCarForLastUser(car);
+//      car = new Car("Model2", 2);
+//      carService.addCar(car);
+//      carService.setCarForLastUser(car);
 
       List<User> users = userService.listUsers();
       for (User user : users) {
-         System.out.println("Id = "+user.getId());
-         System.out.println("First Name = "+user.getFirstName());
-         System.out.println("Last Name = "+user.getLastName());
-         System.out.println("Email = "+user.getEmail());
-         System.out.println("Car = "+user.getCar());
+         System.out.println("Id = " + user.getId());
+         System.out.println("First Name = " + user.getFirstName());
+         System.out.println("Last Name = " + user.getLastName());
+         System.out.println("Email = " + user.getEmail());
+         System.out.println("Car = " + user.getCar());
          System.out.println();
       }
-
-      System.out.println(" Владелец машины Model1 серии 1 =" + userService.getUserFromCar("Model1", 1));
-      System.out.println(" Владелец машины Model2 серии 2 =" + userService.getUserFromCar("Model2", 2));
+      String model = "Model1";
+      int series = 2;
+      User user = userService.getUserFromCar(model, series);
+      printUserFromCar(user, model, series);
+      model = "Model2";
+      series = 1;
+      user = userService.getUserFromCar(model, series);
+      printUserFromCar(user, model, series);
+      model = "Model2";
+      series = 3;
+      user = userService.getUserFromCar(model, series);
+      printUserFromCar(user, model, series);
 
       context.close();
+   }
+
+   public static void printUserFromCar(User user, String model, int series) {
+      if (user == null) {
+         System.out.println("Нет владельцев машины " + model + " серии " + series);
+      } else {
+         System.out.println("Машиной " + model + " серии " + series + " владеет " + user);
+      }
    }
 }
