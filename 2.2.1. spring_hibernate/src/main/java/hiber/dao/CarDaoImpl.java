@@ -7,9 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
+import java.util.List;
 
 @Repository
 public class CarDaoImpl implements CarDao{
+    private final String GET_CAR = "FROM Car WHERE model = :model AND series = :series";
+    private final String GET_USER_FROM_CAR = "select u FROM User u WHERE u.car = :car";
+    private final String GET_LAST_USER = "FROM User ORDER BY id DESC";
     @Autowired
     private SessionFactory sessionFactory;
     @Override
@@ -19,7 +23,7 @@ public class CarDaoImpl implements CarDao{
 
     @Override
     public void setCarForLastUser(Car car) {
-        User user = (User) sessionFactory.getCurrentSession().createQuery("FROM User ORDER BY id DESC")
+        User user = (User) sessionFactory.getCurrentSession().createQuery(GET_LAST_USER)
                 .setMaxResults(1).getSingleResult();
         if (user != null) {
             user.setCar(car);
@@ -28,20 +32,17 @@ public class CarDaoImpl implements CarDao{
 
     @Override
     public User getUserFromCar(String model, int series) {
-        User user = null;
-        try {
-            Car car = (Car) sessionFactory.getCurrentSession()
-                    .createQuery("from Car where model = :model AND series = :series")
-                    .setParameter("model", model).setParameter("series", series)
-                    .setMaxResults(1).getSingleResult();
-            System.out.println(car);
-//                    "FROM User WHERE Car =: c"
-            String sql = "FROM User WHERE Car = :car";
-            return (User) sessionFactory.getCurrentSession().createQuery(sql)
-                    .setParameter("car", car).getSingleResult();
-        } catch (NoResultException e) {
+        List<Car> car = sessionFactory.getCurrentSession()
+                .createQuery(GET_CAR)
+                .setParameter("model", model).setParameter("series", series)
+                .setMaxResults(1).getResultList();
+        if (car.isEmpty()) {
             System.out.println("Машина " + model + " серии " + series + " не найдена");
+            return null;
+        } else {
+            return (User) sessionFactory.getCurrentSession()
+                    .createQuery(GET_USER_FROM_CAR)
+                    .setParameter("car", car.get(0)).getSingleResult();
         }
-        return user;
     }
 }
